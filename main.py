@@ -17,8 +17,6 @@ import timeit
 
 RANDOM_SEED = 42
 IMG_SIZE = 128
-INPUT_CHANNEL = 1
-OUTPUT_CHANNEL = 1
 BATCH_SIZE = 16
 LEARNING_RATE = 1e-4
 NUM_EPOCHS = 50
@@ -47,13 +45,13 @@ preprocess = transforms.Compose(
     transforms.Normalize([0.5], [0.5])
 ])
 
-# def transform(examples):
-#     images = [preprocess(image.convert("RGB")) for image in examples["image"]]
-#     return {"images": images}
-
 def transform(examples):
-    images = [preprocess(image.convert("L")) for image in examples["image"]]  # Convert to grayscale
+    images = [preprocess(image.convert("RGB")) for image in examples["image"]]
     return {"images": images}
+
+# def transform(examples):
+#     images = [preprocess(image.convert("L")) for image in examples["image"]]  # Convert to grayscale
+#     return {"images": images}
 
 dataset.set_transform(transform)
 train_dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=False)
@@ -61,8 +59,8 @@ train_dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=False)
 
 model = UNet2DModel(
     sample_size=IMG_SIZE,
-    in_channels=1,
-    out_channels=1,
+    in_channels=3,
+    out_channels=3,
     layers_per_block=2,
     block_out_channels=(128, 128, 256, 256, 512, 512),
     down_block_types=(
@@ -112,22 +110,22 @@ def sample_image_generation(model, noise_scheduler, num_generate_images, random_
     
     os.makedirs(save_dir, exist_ok=True)
     
-    # # Convert PyTorch tensors to PIL images and save
-    # for i, img_tensor in enumerate(images):
-    #     # Assuming images are in the tensor format (C, H, W) and pixel values are normalized
-    #     img = transforms.ToPILImage()(img_tensor).convert("RGB")
-    #     file_path = os.path.join(save_dir, f"generated_image_{i+1}.png")
-    #     img.save(file_path)
-    #     print(f"Image {i+1} saved to {file_path}")
+    # Convert PyTorch tensors to PIL images and save
+    for i, img_tensor in enumerate(images):
+        # Assuming images are in the tensor format (C, H, W) and pixel values are normalized
+        img = transforms.ToPILImage()(img_tensor).convert("RGB")
+        file_path = os.path.join(save_dir, f"generated_image_{i+1}.png")
+        img.save(file_path)
+        print(f"Image {i+1} saved to {file_path}")
 
-    # Loop through the generated images and save them
-    for i, image in enumerate(images):
-        # Convert the tensor image to a PIL Image
-        image_np = image.squeeze().numpy()  # Squeeze is used to remove channel dim if it's 1; for grayscale images
-        img = Image.fromarray(np.uint8(image_np * 255), 'L')  # Convert to uint8 and create PIL Image in 'L' mode for grayscale
+    # # Loop through the generated images and save them
+    # for i, image in enumerate(images):
+    #     # Convert the tensor image to a PIL Image
+    #     image_np = image.squeeze().numpy()  # Squeeze is used to remove channel dim if it's 1; for grayscale images
+    #     img = Image.fromarray(np.uint8(image_np * 255), 'L')  # Convert to uint8 and create PIL Image in 'L' mode for grayscale
         
-        # Save the image
-        img.save(f"{save_dir}/image_{i+1}.png")
+    #     # Save the image
+    #     img.save(f"{save_dir}/image_{i+1}.png")
 
 
 
