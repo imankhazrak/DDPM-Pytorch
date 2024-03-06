@@ -81,15 +81,15 @@ model = UNet2DModel(
         "UpBlock2D"
     )
 )
-model = model.to(device)
+model = model.to('cpu')
 
-sample_image = dataset[0]["images"].unsqueeze(0).to(device)
+sample_image = dataset[0]["images"].unsqueeze(0).to('cpu')
 # print("Input shape", sample_image.shape)
 # print("Output shape", model(sample_image, timestep=0).sample.shape)
 
 noise_scheduler = DDPMScheduler(num_train_timesteps=NUM_TIMESTEPS)
-noise = torch.randn(sample_image.shape).to(device)
-timesteps = torch.LongTensor([50]).to(device)
+noise = torch.randn(sample_image.shape).to('cpu')
+timesteps = torch.LongTensor([50]).to('cpu')
 noisy_image = noise_scheduler.add_noise(sample_image, noise, timesteps)
 
 Image.fromarray(((noisy_image.permute(0, 2, 3, 1) + 1.0) * 127.5).type(torch.uint8).cpu().numpy()[0])
@@ -150,11 +150,11 @@ for epoch in tqdm(range(NUM_EPOCHS), position=0, leave=True):
     model.train()
     train_running_loss = 0
     for idx, batch in enumerate(tqdm(train_dataloader, position=0, leave=True)):
-        clean_images = batch["images"].to(device)
-        noise = torch.randn(clean_images.shape).to(device)
+        clean_images = batch["images"].to('cpu')
+        noise = torch.randn(clean_images.shape).to('cpu')
         last_batch_size = len(clean_images)
         
-        timesteps = torch.randint(0, noise_scheduler.config.num_train_timesteps, (last_batch_size,)).to(device)
+        timesteps = torch.randint(0, noise_scheduler.config.num_train_timesteps, (last_batch_size,)).to('cpu')
         noisy_images = noise_scheduler.add_noise(clean_images, noise, timesteps)
         
         with accelerator.accumulate(model):
