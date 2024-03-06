@@ -47,8 +47,12 @@ preprocess = transforms.Compose(
     transforms.Normalize([0.5], [0.5])
 ])
 
+# def transform(examples):
+#     images = [preprocess(image.convert("RGB")) for image in examples["image"]]
+#     return {"images": images}
+
 def transform(examples):
-    images = [preprocess(image.convert("RGB")) for image in examples["image"]]
+    images = [preprocess(image.convert("L")) for image in examples["image"]]  # Convert to grayscale
     return {"images": images}
 
 dataset.set_transform(transform)
@@ -184,7 +188,7 @@ NUM_GENERATE_IMAGES = 50
 sample_image_generation(model, noise_scheduler, NUM_GENERATE_IMAGES, RANDOM_SEED, NUM_TIMESTEPS)
 
 # Define your save path
-save_path = r"C:\0_Git_Iman\All BGSU Projcts\Z. RA & Desertation\1. DDPM\Code\Code_11_Pytorch\DDPM-Pytorch\save_model\checkpoint.pth"
+save_path = r"./save_model/checkpoint.pth"
 
 # Collect the states
 checkpoint = {
