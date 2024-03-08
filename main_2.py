@@ -164,7 +164,7 @@ for epoch in tqdm(range(NUM_EPOCHS), position=0, leave=True):
     print(f"Train Loss EPOCH: {epoch+1}: {train_loss:.4f}")
     print(f"Train Learning Rate EPOCH: {epoch+1}: {train_learning_rate}")
     if epoch%10 == 0:
-        sample_image_generation(model, noise_scheduler, NUM_GENERATE_IMAGES, RANDOM_SEED, NUM_TIMESTEPS, save_dir)
+        sample_image_generation(model, noise_scheduler, NUM_GENERATE_IMAGES, RANDOM_SEED, NUM_TIMESTEPS, save_dir_train)
     print("-"*30)
 
 stop = timeit.default_timer()
