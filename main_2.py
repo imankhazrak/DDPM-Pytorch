@@ -106,8 +106,12 @@ def sample_image_generation(model, noise_scheduler, num_generate_images, random_
 
     for i, image in enumerate(images):
         save_path = os.path.join(save_dir, f"generated_image_{i+1}.png")
-        # Convert image to PIL Image and save
-        pil_image = transforms.ToPILImage()(image)
+        if not isinstance(image, Image.Image):
+            # Convert tensor image to PIL Image only if necessary
+            pil_image = transforms.ToPILImage()(image)
+        else:
+            # If it's already a PIL image, no need to convert
+            pil_image = image
         pil_image.save(save_path)
 
 optimizer = AdamW(model.parameters(), lr=LEARNING_RATE)
