@@ -130,7 +130,10 @@ accelerator = Accelerator(
 model, optimizer, train_dataloader, lr_scheduler = accelerator.prepare(model, optimizer, train_dataloader, lr_scheduler)
 
         
-save_dir = "/.save_model/save_images_training"
+save_dir_train = "save_model/save_images_training"
+if not os.path.exists(save_dir_train):
+    # If the directory does not exist, create it
+    os.makedirs(save_dir_train)
 start = timeit.default_timer()
 for epoch in tqdm(range(NUM_EPOCHS), position=0, leave=True):
     model.train()
@@ -169,8 +172,12 @@ print(f"Training Time: {stop-start:.2f}s")
 
 
 # Generate images after final train
-save_dir = "/.save_model/save_images_final"
-sample_image_generation(model, noise_scheduler, NUM_GENERATE_IMAGES, RANDOM_SEED, NUM_TIMESTEPS, save_dir)
+save_dir_final = "save_model/save_images_final"
+if not os.path.exists(save_dir_final):
+    # If the directory does not exist, create it
+    os.makedirs(save_dir_final)
+NUM_GENERATE_IMAGES = 50
+sample_image_generation(model, noise_scheduler, NUM_GENERATE_IMAGES, RANDOM_SEED, NUM_TIMESTEPS, save_dir_final)
 
 
 checkpoint = {
@@ -181,10 +188,12 @@ checkpoint = {
 
 # Define your save path
 # save_path = "/content/drive/MyDrive/4. BGSU/1.2 PhD_Courses/3. 7200_Machin Learning/Final_project/CS7200_SP2024_Project_G01/Notebooks/DDPM-Pytorch//save_model/checkpoint.pth"
-save_path = "./save_model/checkpoint.pth"
-
+save_checkpoint = "save_model/checkpoint.pth"
+if not os.path.exists(save_checkpoint):
+    # If the directory does not exist, create it
+    os.makedirs(save_checkpoint)
 # Save checkpoint
-torch.save(checkpoint, save_path)
+torch.save(checkpoint, save_checkpoint)
 
 
 # # Load the checkpoint
