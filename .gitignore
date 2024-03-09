@@ -3,3 +3,4 @@ media
 notes.txt
 .DS_Store
 checkpoint.pth
+*.pth
