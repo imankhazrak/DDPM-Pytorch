@@ -75,7 +75,7 @@ save_path = f"save_model/Server_BATCHSIZE{BATCH_SIZE}_TIMESTEPS{NUM_TIMESTEPS}_E
 
 dataset = load_dataset(f"chest_X_ray_{dataname}", split="train", trust_remote_code=True)
 
-
+print("loading data finished")
 
 # Data aumentation
 preprocess = transforms.Compose(
