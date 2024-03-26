@@ -16,16 +16,45 @@ import random
 import timeit
 
 import json
+import argparse
 
 
+
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
+
+# Set up argument parsing
+parser = argparse.ArgumentParser(description='DDPM Training Script')
+parser.add_argument('--dataname', type=str, required=True, help='A dataset name to process (e.g., NORMAL, PNEUMONIA, COVID)')
+# parser.add_argument('--RANDOM_SEED', type=int, default=42, help='Random seed for initialization')
+parser.add_argument('--IMG_SIZE', type=int, default=128, help='Image size (e.g., 128 for 128x128 images)')
+parser.add_argument('--BATCH_SIZE', type=int, default=16, help='Batch size for training')
+parser.add_argument('--LEARNING_RATE', type=float, default=1e-4, help='Learning rate for the optimizer')
+parser.add_argument('--NUM_EPOCHS', type=int, default=215, help='Number of epochs for training')
+parser.add_argument('--NUM_GENERATE_IMAGES', type=int, default=200, help='Number of images to generate')
+parser.add_argument('--NUM_TIMESTEPS', type=int, default=4000, help='Number of timesteps for the diffusion process')
+
+args = parser.parse_args()
+
+# Use the arguments
+dataname = args.dataname # dataname = "NORMAL", "PNEUMONIA", "COVID"
 # Hyperparameters
+# RANDOM_SEED = args.RANDOM_SEED
+IMG_SIZE = args.IMG_SIZE
+BATCH_SIZE = args.BATCH_SIZE
+LEARNING_RATE = args.LEARNING_RATE
+NUM_EPOCHS = args.NUM_EPOCHS
+NUM_GENERATE_IMAGES = args.NUM_GENERATE_IMAGES
+NUM_TIMESTEPS = args.NUM_TIMESTEPS
+
+# RANDOM_SEED = args.RANDOM_SEED #42
 RANDOM_SEED = 42
-IMG_SIZE = 128
-BATCH_SIZE = 16
+# IMG_SIZE = args.IMG_SIZE #128
+# BATCH_SIZE = args.BATCH_SIZE #16
 LEARNING_RATE = 1e-4 # 1e-4
-NUM_EPOCHS = 524
-NUM_GENERATE_IMAGES = 200
-NUM_TIMESTEPS = 4000
+# NUM_EPOCHS = args.NUM_EPOCHS #215
+# NUM_GENERATE_IMAGES = args.NUM_GENERATE_IMAGES #200
+# NUM_TIMESTEPS = args.NUM_TIMESTEPS #4000
 MIXED_PRECISION = "fp16"
 GRADIENT_ACCUMULATION_STEPS = 1
 
@@ -37,13 +66,10 @@ torch.cuda.manual_seed_all(RANDOM_SEED)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
 
-###  dataname = "Pneumonia"
-dataname = "COVID" #  or dataname = "Pneumonia"
-dir_path = "/home/ikhazra/DDPM-Pytorch"
+dir_path = os.getcwd()
 save_path = f"{dir_path}/save_model/Server_BATCHSIZE{BATCH_SIZE}_TIMESTEPS{NUM_TIMESTEPS}_EPOCHS{NUM_EPOCHS}_LEARNING_RATE{LEARNING_RATE}_checkpoint_{dataname}.pth"
-dataset = load_dataset(f"{dir_path}/chest_X_ray_covid", split="train", trust_remote_code=True)
+dataset = load_dataset(f"{dir_path}/chest_X_ray_{dataname}", split="train", trust_remote_code=True)
 
 
 # Data aumentation
