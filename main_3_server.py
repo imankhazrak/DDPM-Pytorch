@@ -66,18 +66,42 @@ torch.cuda.manual_seed_all(RANDOM_SEED)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
+from torch.utils.data import Dataset
+
+class LocalImageDataset(Dataset):
+    def __init__(self, img_dir, transform=None):
+        self.img_dir = img_dir
+        self.transform = transform
+        self.img_names = [img for img in os.listdir(img_dir) if os.path.isfile(os.path.join(img_dir, img))]
+        print(f"Found {len(self.img_names)} images in {img_dir}")  # Debugging line
+
+    def __len__(self):
+        return len(self.img_names)
+
+    def __getitem__(self, idx):
+        img_path = os.path.join(self.img_dir, self.img_names[idx])
+        image = Image.open(img_path).convert("RGB")
+        if self.transform:
+            image = self.transform(image)
+        return {'images': image}
+
 
 dir_path = os.getcwd()
 # save_path = f"{dir_path}/save_model/Server_BATCHSIZE{BATCH_SIZE}_TIMESTEPS{NUM_TIMESTEPS}_EPOCHS{NUM_EPOCHS}_LEARNING_RATE{LEARNING_RATE}_checkpoint_{dataname}.pth"
 save_path = f"save_model/Server_BATCHSIZE{BATCH_SIZE}_TIMESTEPS{NUM_TIMESTEPS}_EPOCHS{NUM_EPOCHS}_LEARNING_RATE{LEARNING_RATE}_checkpoint_{dataname}.pth"
-
 # dataset = load_dataset(f"{dir_path}/chest_X_ray_{dataname}", split="train", trust_remote_code=True)
+# dataset = load_dataset(f"chest_X_ray_{dataname}", split="train", trust_remote_code=True)
 
-dataset = load_dataset(f"chest_X_ray_{dataname}", split="train", trust_remote_code=True)
+# Assuming images are stored in a directory named 'chest_X_ray_DATANAME'
+dataset = f"{dir_path}/chest_X_ray_{dataname}/{dataname}"  # Update the path according to your dataset structure
+
+
+
+
 
 print("loading data finished")
 
-# Data aumentation
+# Data augmentation
 preprocess = transforms.Compose(
 [
     transforms.Resize((IMG_SIZE, IMG_SIZE)),
@@ -89,9 +113,13 @@ preprocess = transforms.Compose(
 def transform(examples):
     images = [preprocess(image.convert("RGB")) for image in examples["image"]]
     return {"images": images}
+# Initialize your dataset
+local_dataset = LocalImageDataset(img_dir=dataset, transform=preprocess)
 
-dataset.set_transform(transform)
-train_dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=False)
+# Use PyTorch DataLoader to load the dataset
+train_dataloader = DataLoader(local_dataset, batch_size=BATCH_SIZE, shuffle=True)
+# dataset.set_transform(transform)
+# train_dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=False)
 
 # U-Net
 model = UNet2DModel(
