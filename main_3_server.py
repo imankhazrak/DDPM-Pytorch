@@ -6,7 +6,7 @@ import torch.nn.functional as F
 from torch.optim import AdamW
 from diffusers import UNet2DModel, DDPMScheduler, DDPMPipeline
 from diffusers.optimization import get_cosine_schedule_with_warmup
-from datasets import load_dataset
+# from datasets import load_dataset
 from accelerate import Accelerator
 from PIL import Image
 import matplotlib.pyplot as plt
